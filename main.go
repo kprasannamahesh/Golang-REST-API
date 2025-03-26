@@ -373,12 +373,6 @@ func userWagerPercentileHandler(c *gin.Context) {
 		}
 	}
 
-	// // Sort results by totalUSDAmount
-	// sort.Slice(results, func(i, j int) bool {
-	// 	return results[i]["totalUSDAmount"].(primitive.Decimal128).Cmp(results[j]["totalUSDAmount"].(primitive.Decimal128)) == -1
-	// 	//results[i]["totalUSDAmount"].(primitive.Decimal128).Float64() < results[j]["totalUSDAmount"].(primitive.Decimal128).Float64()
-	// })
-
 	// Find user's rank
 	for rank, result := range results {
 		if result["_id"] == userIDObj {
