@@ -16,6 +16,23 @@ import (
 
 var client *mongo.Client
 
+func BasicAuthMiddleware(username, password string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Get the Basic Authentication credentials from the request header.
+		providedUsername, providedPassword, hasAuth := c.Request.BasicAuth()
+
+		if hasAuth && providedUsername == username && providedPassword == password {
+			// Credentials are valid, proceed to the next handler.
+			c.Next()
+		} else {
+			// Credentials are missing or invalid, return an unauthorized response.
+			c.Header("WWW-Authenticate", `Basic realm="Restricted Area"`)
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			c.Abort()
+		}
+	}
+}
+
 func main() {
 	// Set client options
 	clientOptions := options.Client().ApplyURI("mongodb://admin:adminpassword@localhost:27017/")
@@ -34,10 +51,11 @@ func main() {
 	}
 
 	log.Println("Successfully connected to MongoDB!")
-
+	const authUsername = "admin"
+	const authPassword = "adminpassword"
 	// Initialize Gin router
 	r := gin.Default()
-
+	r.Use(BasicAuthMiddleware(authUsername, authPassword))
 	// Define route
 	r.GET("/gross_gaming_rev", grossGamingRevHandler)
 	r.GET("/daily_wager_volume", dailyWagerVolumeHandler)
